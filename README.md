@@ -66,6 +66,21 @@ Starting with **Creality OS firmware 1.3.5.22** on K1, K1 Max, and K1C printers:
 #### Step 3: Enjoy!
 Click the **Device** tab in OrcaSlicer. Both your printer controls and your live camera will appear together instantly!
 
+#### 💡 Can't find the setting in OrcaSlicer UI? (3 Easy Alternatives)
+OrcaSlicer sometimes hides the "Device UI" input box in certain preset views. If you can't find it:
+
+* **Option A — ⚡ One-Click Auto-Patcher:**  
+  Double-click **`patch_orcaslicer.bat`** (or run `python patch_orcaslicer.py`). It will automatically scan your computer, locate all your K1/K1 Max profiles, and inject the URL for you!
+* **Option B — 🤖 Ask your AI Assistant (Claude / Cursor / ChatGPT / Copilot / Antigravity):**  
+  Copy & paste this prompt to your AI coding agent:  
+  > *"Open my OrcaSlicer configuration folder (`%APPDATA%\OrcaSlicer\user\default\machine\`), find my active Creality K1 .json profile, and set `"print_host_webui": "http://127.0.0.1:1984/dashboard.html"`."*
+* **Option C — 📝 Manual JSON Edit:**  
+  Open your machine profile file in Notepad:  
+  - Windows: `%APPDATA%\OrcaSlicer\user\default\machine\<Your_Printer>.json`  
+  - macOS: `~/Library/Application Support/OrcaSlicer/user/default/machine/<Your_Printer>.json`  
+  - Linux: `~/.config/OrcaSlicer/user/default/machine/<Your_Printer>.json`  
+  Add `"print_host_webui": "http://127.0.0.1:1984/dashboard.html"` and save.
+
 ---
 
 ### 🎛️ Viewing Modes (Top Toolbar)
@@ -119,6 +134,19 @@ Creality K1, K1 Max ve K1C yazıcılarına gelen **1.3.5.22 firmware güncelleme
 
 #### 3. Adım: Hepsi Bu Kadar!
 OrcaSlicer'da **"Cihaz"** sekmesine tıklayın. Artık hem tüm yazıcı kontrolleriniz hem de canlı kameranız aynı anda karşınızda!
+
+#### 💡 Menüde Kutucuğu Bulamadınız mı? (3 Kolay Alternatif)
+Bazı OrcaSlicer sürümlerinde veya profillerinde "Cihaz Arayüzü" kutusu gizlenebilir. Eğer arayüzde bulamadıysanız şu 3 kolay yöntemden birini seçebilirsiniz:
+
+* **Yol 1 — ⚡ Tek Tıkla Otomatik Yamalayıcı:**  
+  Klasördeki **`patch_orcaslicer.bat`** dosyasına çift tıklayın *(veya `python patch_orcaslicer.py` çalıştırın)*. Bilgisayarınızdaki tüm K1/K1 Max profillerini saniyeler içinde otomatik olarak bulup ayarı sizin yerinize yapar!
+* **Yol 2 — 🤖 Yapay Zeka Ajanınıza (Claude / Cursor / ChatGPT / Copilot / Antigravity) Yaptırın:**  
+  AI asistanınıza şu hazır komutu kopyalayıp yapıştırmanız yeterlidir:  
+  > *"OrcaSlicer ayar klasörüme git (`%APPDATA%\OrcaSlicer\user\default\machine\`), aktif Creality K1 yazıcı profilimin JSON dosyasını bul ve içine `"print_host_webui": "http://127.0.0.1:1984/dashboard.html"` satırını ekle."*
+* **Yol 3 — 📝 Manuel JSON Düzenleme:**  
+  Not Defteri ile şu dizindeki yazıcı profilinizi açın:  
+  `%APPDATA%\OrcaSlicer\user\default\machine\<Yazıcı_Profiliniz>.json`  
+  İçine `"print_host_webui": "http://127.0.0.1:1984/dashboard.html"` satırını ekleyip kaydedin.
 
 ---
 
