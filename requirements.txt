@@ -1,0 +1,3 @@
+# No external pip packages required!
+# Uses standard Python library (socket, urllib, subprocess, json, threading).
+# Python 3.8+ compatible.

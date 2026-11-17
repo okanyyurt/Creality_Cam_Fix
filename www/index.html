@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creality K1 Max Control & Camera</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #121212;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #e0e0e0;
+        }
+
+        #app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background-color: #121212;
+        }
+
+        /* Top control bar */
+        #toolbar {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(24, 24, 27, 0.90);
+            backdrop-filter: blur(12px);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
+        }
+
+        .tool-btn {
+            background: #27272a;
+            color: #d1d5db;
+            border: 1px solid #3f3f46;
+            padding: 5px 11px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tool-btn:hover {
+            background: #3b82f6;
+            border-color: #60a5fa;
+            color: #ffffff;
+        }
+
+        .tool-btn.active {
+            background: #2563eb;
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        #btn-lang {
+            font-weight: 600;
+            background: #18181b;
+            border-color: #52525b;
+            color: #60a5fa;
+        }
+        #btn-lang:hover {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        /* Layout panels */
+        .frame-wrapper {
+            position: relative;
+            height: 100%;
+            transition: width 0.2s ease;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #18181b;
+        }
+
+        /* Main Printer Frame */
+        #printer-wrapper {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Mode: Split */
+        #app-container.mode-split #printer-wrapper {
+            width: 60%;
+            flex: none;
+        }
+
+        #app-container.mode-split #cam-panel {
+            display: flex !important;
+            position: relative !important;
+            width: 40% !important;
+            height: 100% !important;
+            bottom: auto !important;
+            right: auto !important;
+            border-left: 2px solid #27272a;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            resize: none !important;
+        }
+
+        #app-container.mode-split #cam-header {
+            cursor: default !important;
+        }
+
+        /* Mode: Printer Only */
+        #app-container.mode-printer #cam-panel {
+            display: none !important;
+        }
+
+        /* Mode: Cam Only */
+        #app-container.mode-cam #printer-wrapper {
+            display: none !important;
+        }
+        #app-container.mode-cam #cam-panel {
+            display: flex !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0 !important;
+            resize: none !important;
+        }
+
+        /* Mode: PiP (Floating) - Default */
+        #cam-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 480px;
+            height: 310px;
+            min-width: 260px;
+            min-height: 170px;
+            max-width: 90vw;
+            max-height: 90vh;
+            background: #18181b;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 999;
+            resize: both;
+        }
+
+        #cam-header {
+            height: 34px;
+            background: #27272a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            cursor: move;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+
+        #cam-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #d4d4d8;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .dot-live {
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ef4444;
+            animation: pulse 1.6s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .cam-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .cam-btn {
+            background: #3f3f46;
+            border: none;
+            color: #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 22px;
+            height: 20px;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .cam-btn:hover {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        #cam-body {
+            flex: 1;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #cam-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+            display: block;
+        }
+
+        #cam-mjpeg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+            display: none;
+        }
+
+        /* Overlay to prevent iframe capturing mouse when dragging */
+        #drag-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="drag-overlay"></div>
+
+    <div id="app-container" class="mode-pip">
+        <!-- Floating Toolbar -->
+        <div id="toolbar">
+            <button class="tool-btn active" id="btn-pip" onclick="setMode('pip')">📌 <span id="txt-pip">Picture-in-Picture</span></button>
+            <button class="tool-btn" id="btn-split" onclick="setMode('split')">🌓 <span id="txt-split">Split View</span></button>
+            <button class="tool-btn" id="btn-printer" onclick="setMode('printer')">🖥️ <span id="txt-printer">Device Only</span></button>
+            <button class="tool-btn" id="btn-cam" onclick="setMode('cam')">📷 <span id="txt-cam">Camera Only</span></button>
+            <button class="tool-btn" id="btn-lang" onclick="toggleLang()" title="Switch Language / Dil Değiştir">🌐 <span id="txt-lang">TR</span></button>
+            <button class="tool-btn" onclick="reloadAll()" id="btn-reload" title="Reload / Yenile">🔄</button>
+        </div>
+
+        <!-- Main Printer UI (Creality Web UI) -->
+        <div id="printer-wrapper" class="frame-wrapper">
+            <iframe id="printer-frame" src="http://192.168.1.140"></iframe>
+        </div>
+
+        <!-- Camera Floating / Docked Panel -->
+        <div id="cam-panel">
+            <div id="cam-header">
+                <span id="cam-title">
+                    <span class="dot-live"></span> <span id="txt-live">LIVE STREAM - K1 MAX</span>
+                </span>
+                <div class="cam-controls">
+                    <button class="cam-btn" id="btn-minimize" onclick="toggleCamMinimize()" title="Minimize / Küçült">—</button>
+                    <button class="cam-btn" id="btn-fullscreen" onclick="setMode('cam')" title="Fullscreen / Tam Ekran">⛶</button>
+                </div>
+            </div>
+            <div id="cam-body">
+                <video id="cam-video" autoplay playsinline muted></video>
+                <img id="cam-mjpeg" src="/api/stream.mjpeg?src=k1" alt="Live Camera" />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const i18n = {
+            en: {
+                title: "Creality K1 Max Control & Camera",
+                pip: "Picture-in-Picture",
+                split: "Split View",
+                printer: "Device Only",
+                cam: "Camera Only",
+                langToggle: "TR",
+                live: "LIVE STREAM - K1 MAX",
+                minTitle: "Minimize / Restore",
+                fsTitle: "Fullscreen",
+                reloadTitle: "Reload Page & Stream"
+            },
+            tr: {
+                title: "Creality K1 Max Kontrol & Kamera",
+                pip: "Resim İçinde Resim",
+                split: "Yan Yana",
+                printer: "Sadece Cihaz",
+                cam: "Sadece Kamera",
+                langToggle: "EN",
+                live: "CANLI YAYIN - K1 MAX",
+                minTitle: "Küçült / Büyüt",
+                fsTitle: "Tam Ekran",
+                reloadTitle: "Yenile"
+            }
+        };
+
+        let currentLang = localStorage.getItem('k1_lang') || (navigator.language && navigator.language.startsWith('tr') ? 'tr' : 'en');
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('k1_lang', lang);
+            const dict = i18n[lang] || i18n.en;
+
+            document.title = dict.title;
+            document.getElementById('txt-pip').textContent = dict.pip;
+            document.getElementById('txt-split').textContent = dict.split;
+            document.getElementById('txt-printer').textContent = dict.printer;
+            document.getElementById('txt-cam').textContent = dict.cam;
+            document.getElementById('txt-lang').textContent = dict.langToggle;
+            document.getElementById('txt-live').textContent = dict.live;
+            document.getElementById('btn-minimize').title = dict.minTitle;
+            document.getElementById('btn-fullscreen').title = dict.fsTitle;
+            document.getElementById('btn-reload').title = dict.reloadTitle;
+        }
+
+        function toggleLang() {
+            applyLanguage(currentLang === 'en' ? 'tr' : 'en');
+        }
+
+        // Initialize language
+        applyLanguage(currentLang);
+
+        const container = document.getElementById('app-container');
+        const camPanel = document.getElementById('cam-panel');
+        const camHeader = document.getElementById('cam-header');
+        const dragOverlay = document.getElementById('drag-overlay');
+        const videoEl = document.getElementById('cam-video');
+        const imgEl = document.getElementById('cam-mjpeg');
+
+        function setMode(mode) {
+            container.className = 'mode-' + mode;
+            document.querySelectorAll('#toolbar .tool-btn').forEach(btn => {
+                if (btn.id.startsWith('btn-') && btn.id !== 'btn-lang' && btn.id !== 'btn-reload') {
+                    btn.classList.remove('active');
+                }
+            });
+            const activeBtn = document.getElementById('btn-' + mode);
+            if (activeBtn) activeBtn.classList.add('active');
+            localStorage.setItem('k1_view_mode', mode);
+        }
+
+        const savedMode = localStorage.getItem('k1_view_mode') || 'pip';
+        setMode(savedMode);
+
+        function reloadAll() {
+            document.getElementById('printer-frame').src = document.getElementById('printer-frame').src;
+            initWebRTC();
+        }
+
+        function toggleCamMinimize() {
+            if (camPanel.style.height === '34px') {
+                camPanel.style.height = '310px';
+            } else {
+                camPanel.style.height = '34px';
+            }
+        }
+
+        // Draggable floating window for PiP mode
+        let isDragging = false;
+        let startX, startY, startRight, startBottom;
+
+        camHeader.addEventListener('mousedown', (e) => {
+            if (container.classList.contains('mode-split') || container.classList.contains('mode-cam')) return;
+            isDragging = true;
+            dragOverlay.style.display = 'block';
+            startX = e.clientX;
+            startY = e.clientY;
+
+            const rect = camPanel.getBoundingClientRect();
+            startRight = window.innerWidth - rect.right;
+            startBottom = window.innerHeight - rect.bottom;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const deltaX = startX - e.clientX;
+            const deltaY = startY - e.clientY;
+
+            let newRight = startRight + deltaX;
+            let newBottom = startBottom + deltaY;
+
+            newRight = Math.max(8, Math.min(window.innerWidth - 100, newRight));
+            newBottom = Math.max(8, Math.min(window.innerHeight - 50, newBottom));
+
+            camPanel.style.right = newRight + 'px';
+            camPanel.style.bottom = newBottom + 'px';
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                dragOverlay.style.display = 'none';
+            }
+        });
+
+        // WebRTC stream loader with automatic MJPEG fallback
+        async function initWebRTC() {
+            try {
+                const pc = new RTCPeerConnection();
+                pc.ontrack = (ev) => {
+                    videoEl.srcObject = ev.streams[0];
+                    videoEl.style.display = 'block';
+                    imgEl.style.display = 'none';
+                };
+                pc.addTransceiver('video', { direction: 'recvonly' });
+
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                const res = await fetch('/api/webrtc?src=k1', {
+                    method: 'POST',
+                    body: offer.sdp
+                });
+
+                if (res.ok) {
+                    const answer = await res.text();
+                    await pc.setRemoteDescription({ type: 'answer', sdp: answer });
+                } else {
+                    switchToMjpeg();
+                }
+            } catch (err) {
+                switchToMjpeg();
+            }
+        }
+
+        function switchToMjpeg() {
+            console.log("Using MJPEG fallback stream");
+            videoEl.style.display = 'none';
+            imgEl.style.display = 'block';
+            imgEl.src = '/api/stream.mjpeg?src=k1&t=' + Date.now();
+        }
+
+        // Start stream immediately
+        initWebRTC();
+    </script>
+</body>
+</html>

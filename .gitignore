@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+last_known_ip.txt
+*.log
+go2rtc.exe
+go2rtc.zip
