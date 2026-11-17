@@ -5,8 +5,9 @@
 [![Firmware](https://img.shields.io/badge/Creality%20Firmware-1.3.5.22%2B%20Tested-success.svg)](https://www.creality.com/)
 [![Zero-Root](https://img.shields.io/badge/Root-NOT%20Required-brightgreen.svg)](#)
 [![OrcaSlicer](https://img.shields.io/badge/OrcaSlicer-2.0%2B-teal.svg)](https://github.com/SoftFever/OrcaSlicer)
+[![Latest Release](https://img.shields.io/github/v/release/okanyyurt/Creality_Cam_Fix?color=blue&label=Latest%20Release)](https://github.com/okanyyurt/Creality_Cam_Fix/releases/latest)
+[![Direct Download](https://img.shields.io/badge/Download-Windows%20Portable%20(.zip)-success?logo=windows)](https://github.com/okanyyurt/Creality_Cam_Fix/releases/download/v1.0.0/Creality_Cam_Fix_v1.0.0_Windows_Portable.zip)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 
 [English](#english) | [Türkçe](#türkçe)
 
